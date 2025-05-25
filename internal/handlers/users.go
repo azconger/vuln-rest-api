@@ -9,14 +9,34 @@ import (
 )
 
 // User represents a user in the system
+// @Description User information
 type User struct {
-	ID       int    `json:"id"`
-	Username string `json:"username"`
-	Email    string `json:"email"`
-	Role     string `json:"role"`
+	// User ID
+	// required: true
+	ID int `json:"id" example:"1"`
+	// Username
+	// required: true
+	Username string `json:"username" example:"admin"`
+	// Email address
+	// required: true
+	Email string `json:"email" example:"admin@example.com"`
+	// User role
+	// required: true
+	Role string `json:"role" example:"admin"`
 }
 
 // HandleGetUsers implements a vulnerable GET /users endpoint
+// @Summary Get users
+// @Description Get list of users with optional filtering
+// @Tags users
+// @Accept json
+// @Produce json
+// @Param query query string false "SQL WHERE clause for filtering"
+// @Security BearerAuth
+// @Success 200 {array} User
+// @Failure 401 {string} string "Unauthorized"
+// @Failure 500 {string} string "Server error"
+// @Router /users [get]
 func HandleGetUsers(w http.ResponseWriter, r *http.Request) {
 	// Vulnerable: SQL injection through query parameter
 	query := r.URL.Query().Get("query")

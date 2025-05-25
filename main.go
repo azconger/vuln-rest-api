@@ -9,8 +9,29 @@ import (
 	"github.com/azconger/vuln-rest-api/internal/middleware"
 	"github.com/gorilla/mux"
 	"github.com/joho/godotenv"
+	httpSwagger "github.com/swaggo/http-swagger"
 )
 
+// @title Vulnerable REST API
+// @version 1.0
+// @description A deliberately vulnerable REST API for testing and demonstration purposes.
+// @termsOfService http://swagger.io/terms/
+
+// @contact.name API Support
+// @contact.url http://www.swagger.io/support
+// @contact.email support@swagger.io
+
+// @license.name Apache 2.0
+// @license.url http://www.apache.org/licenses/LICENSE-2.0.html
+
+// @host localhost:8080
+// @BasePath /api/v1
+// @schemes http https
+
+// @securityDefinitions.apikey BearerAuth
+// @in header
+// @name Authorization
+// @description Type "Bearer" followed by a space and JWT token.
 func main() {
 	// Load environment variables
 	if err := godotenv.Load(); err != nil {
@@ -31,6 +52,9 @@ func main() {
 
 	// User routes (protected)
 	api.HandleFunc("/users", middleware.AuthMiddleware(handlers.HandleGetUsers)).Methods("GET")
+
+	// Swagger documentation
+	r.PathPrefix("/swagger/").Handler(httpSwagger.WrapHandler)
 
 	// Get port from environment variable or use default
 	port := os.Getenv("PORT")
