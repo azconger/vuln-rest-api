@@ -1,0 +1,181 @@
+{
+    "name": "OWASP Benchmark Go Implementation",
+    "description": "Rules for implementing OWASP Benchmark vulnerabilities in Go",
+    "version": "1.0.0",
+    "rules": {
+        "api_conventions": {
+            "base_path": "/api/v1",
+            "resource_naming": "plural",
+            "http_methods": {
+                "GET": "retrieve",
+                "POST": "create",
+                "PUT": "update",
+                "PATCH": "partial_update",
+                "DELETE": "delete"
+            },
+            "status_codes": {
+                "200": "success",
+                "201": "created",
+                "400": "bad_request",
+                "401": "unauthorized",
+                "403": "forbidden",
+                "404": "not_found",
+                "500": "server_error"
+            }
+        },
+        "vulnerability_categories": {
+            "command_injection": {
+                "cwe": 78,
+                "test_cases": 251,
+                "description": "Command injection vulnerabilities through unsafe command execution",
+                "endpoints": [
+                    "/api/v1/commands",
+                    "/api/v1/exec"
+                ]
+            },
+            "weak_cryptography": {
+                "cwe": 327,
+                "test_cases": 246,
+                "description": "Weak cryptographic implementations and algorithms",
+                "endpoints": [
+                    "/api/v1/crypto",
+                    "/api/v1/encrypt"
+                ]
+            },
+            "weak_hashing": {
+                "cwe": 328,
+                "test_cases": 236,
+                "description": "Weak hashing algorithms and implementations",
+                "endpoints": [
+                    "/api/v1/hash",
+                    "/api/v1/passwords"
+                ]
+            },
+            "ldap_injection": {
+                "cwe": 90,
+                "test_cases": 59,
+                "description": "LDAP injection vulnerabilities",
+                "endpoints": [
+                    "/api/v1/users/search",
+                    "/api/v1/ldap"
+                ]
+            },
+            "path_traversal": {
+                "cwe": 22,
+                "test_cases": 268,
+                "description": "Path traversal vulnerabilities",
+                "endpoints": [
+                    "/api/v1/files",
+                    "/api/v1/downloads"
+                ]
+            },
+            "secure_cookie_flag": {
+                "cwe": 614,
+                "test_cases": 67,
+                "description": "Missing secure cookie flags",
+                "endpoints": [
+                    "/api/v1/sessions",
+                    "/api/v1/cookies"
+                ]
+            },
+            "sql_injection": {
+                "cwe": 89,
+                "test_cases": 504,
+                "description": "SQL injection vulnerabilities",
+                "endpoints": [
+                    "/api/v1/users",
+                    "/api/v1/products",
+                    "/api/v1/orders"
+                ]
+            },
+            "trust_boundary_violation": {
+                "cwe": 501,
+                "test_cases": 126,
+                "description": "Trust boundary violations",
+                "endpoints": [
+                    "/api/v1/admin",
+                    "/api/v1/settings"
+                ]
+            },
+            "weak_randomness": {
+                "cwe": 330,
+                "test_cases": 493,
+                "description": "Weak random number generation",
+                "endpoints": [
+                    "/api/v1/tokens",
+                    "/api/v1/random"
+                ]
+            },
+            "xpath_injection": {
+                "cwe": 643,
+                "test_cases": 35,
+                "description": "XPath injection vulnerabilities",
+                "endpoints": [
+                    "/api/v1/xml/search",
+                    "/api/v1/xml/query"
+                ]
+            },
+            "xss": {
+                "cwe": 79,
+                "test_cases": 455,
+                "description": "Cross-site scripting vulnerabilities",
+                "endpoints": [
+                    "/api/v1/comments",
+                    "/api/v1/messages",
+                    "/api/v1/posts"
+                ]
+            }
+        },
+        "code_organization": {
+            "test_cases": {
+                "pattern": "test_*.go",
+                "location": "tests/",
+                "naming": "Test{Category}{Number}",
+                "metadata": {
+                    "required_fields": [
+                        "category",
+                        "test_number",
+                        "vulnerability",
+                        "cwe"
+                    ]
+                }
+            },
+            "handlers": {
+                "pattern": "*.go",
+                "location": "internal/handlers/",
+                "naming": "{Category}Handler"
+            }
+        },
+        "documentation": {
+            "required_sections": [
+                "Vulnerability Description",
+                "CWE Reference",
+                "Test Case Number",
+                "Expected Behavior",
+                "Exploitation Method"
+            ]
+        },
+        "authentication": {
+            "required_endpoints": [
+                "/api/v1/auth/login",
+                "/api/v1/auth/token",
+                "/api/v1/auth/refresh",
+                "/api/v1/auth/logout"
+            ],
+            "vulnerabilities": [
+                "weak_jwt_implementation",
+                "insufficient_token_validation",
+                "predictable_token_generation",
+                "missing_rate_limiting",
+                "session_fixation"
+            ]
+        }
+    },
+    "references": {
+        "owasp_benchmark": "https://owasp.org/www-project-benchmark/",
+        "owasp_benchmark_java": "https://github.com/OWASP-Benchmark/BenchmarkJava",
+        "owasp_benchmark_utils": "https://github.com/OWASP-Benchmark/BenchmarkUtils",
+        "cwe_database": "https://cwe.mitre.org/",
+        "owasp_top_10": "https://owasp.org/www-project-top-ten/"
+    }
+} 
