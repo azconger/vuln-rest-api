@@ -1,5 +1,87 @@
 basePath: /api/v1
 definitions:
+  handlers.CommandRequest:
+    description: Command execution request payload
+    properties:
+      args:
+        description: |-
+          Arguments for the command
+          required: false
+        example:
+        - '[''-l'''
+        - ' ''-a'']'
+        items:
+          type: string
+        type: array
+      command:
+        description: |-
+          Command to execute
+          required: true
+        example: ls -la
+        type: string
+    type: object
+  handlers.CommandResponse:
+    description: Command execution response payload
+    properties:
+      error:
+        description: |-
+          Error message if any
+          required: false
+        example: command not found
+        type: string
+      exit_code:
+        description: |-
+          Exit code
+          required: true
+        example: 0
+        type: integer
+      output:
+        description: |-
+          Command output
+          required: true
+        example: |-
+          total 1234
+          drwxr-xr-x  ...
+        type: string
+    type: object
+  handlers.FileRequest:
+    description: File operation request payload
+    properties:
+      content:
+        description: |-
+          File content (for write operations)
+          required: false
+        example: <html>...</html>
+        type: string
+      path:
+        description: |-
+          File path
+          required: true
+        example: /var/www/html/index.html
+        type: string
+    type: object
+  handlers.FileResponse:
+    description: File operation response payload
+    properties:
+      content:
+        description: |-
+          File content
+          required: true
+        example: <html>...</html>
+        type: string
+      error:
+        description: |-
+          Error message if any
+          required: false
+        example: file not found
+        type: string
+      size:
+        description: |-
+          File size in bytes
+          required: true
+        example: 1234
+        type: integer
+    type: object
   handlers.LoginRequest:
     description: Login request payload
     properties:
@@ -199,6 +281,260 @@ paths:
       summary: Get OAuth token
       tags:
       - auth
+  /commands:
+    post:
+      consumes:
+      - application/json
+      description: Execute system command (intentionally vulnerable to command injection)
+      parameters:
+      - description: Command to execute
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/handlers.CommandRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/handlers.CommandResponse'
+        "400":
+          description: Invalid request
+          schema:
+            type: string
+        "401":
+          description: Unauthorized
+          schema:
+            type: string
+        "500":
+          description: Server error
+          schema:
+            type: string
+      security:
+      - BearerAuth: []
+      summary: Execute system command
+      tags:
+      - commands
+  /commands/filter:
+    post:
+      consumes:
+      - application/json
+      description: Execute command with basic filtering (intentionally vulnerable)
+      parameters:
+      - description: Command to execute
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/handlers.CommandRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/handlers.CommandResponse'
+        "400":
+          description: Invalid request
+          schema:
+            type: string
+        "401":
+          description: Unauthorized
+          schema:
+            type: string
+        "500":
+          description: Server error
+          schema:
+            type: string
+      security:
+      - BearerAuth: []
+      summary: Execute filtered command
+      tags:
+      - commands
+  /commands/shell:
+    post:
+      consumes:
+      - application/json
+      description: Execute shell command (intentionally vulnerable to shell injection)
+      parameters:
+      - description: Shell command to execute
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/handlers.CommandRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/handlers.CommandResponse'
+        "400":
+          description: Invalid request
+          schema:
+            type: string
+        "401":
+          description: Unauthorized
+          schema:
+            type: string
+        "500":
+          description: Server error
+          schema:
+            type: string
+      security:
+      - BearerAuth: []
+      summary: Execute shell command
+      tags:
+      - commands
+  /files/download:
+    post:
+      consumes:
+      - application/json
+      description: Download file (intentionally vulnerable to path traversal)
+      parameters:
+      - description: File path
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/handlers.FileRequest'
+      produces:
+      - application/octet-stream
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: file
+        "400":
+          description: Invalid request
+          schema:
+            type: string
+        "401":
+          description: Unauthorized
+          schema:
+            type: string
+        "500":
+          description: Server error
+          schema:
+            type: string
+      security:
+      - BearerAuth: []
+      summary: Download file
+      tags:
+      - files
+  /files/list:
+    post:
+      consumes:
+      - application/json
+      description: List directory contents (intentionally vulnerable to path traversal)
+      parameters:
+      - description: Directory path
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/handlers.FileRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              type: string
+            type: array
+        "400":
+          description: Invalid request
+          schema:
+            type: string
+        "401":
+          description: Unauthorized
+          schema:
+            type: string
+        "500":
+          description: Server error
+          schema:
+            type: string
+      security:
+      - BearerAuth: []
+      summary: List directory contents
+      tags:
+      - files
+  /files/read:
+    post:
+      consumes:
+      - application/json
+      description: Read file content (intentionally vulnerable to path traversal)
+      parameters:
+      - description: File path
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/handlers.FileRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/handlers.FileResponse'
+        "400":
+          description: Invalid request
+          schema:
+            type: string
+        "401":
+          description: Unauthorized
+          schema:
+            type: string
+        "500":
+          description: Server error
+          schema:
+            type: string
+      security:
+      - BearerAuth: []
+      summary: Read file content
+      tags:
+      - files
+  /files/write:
+    post:
+      consumes:
+      - application/json
+      description: Write file content (intentionally vulnerable to path traversal)
+      parameters:
+      - description: File path and content
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/handlers.FileRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/handlers.FileResponse'
+        "400":
+          description: Invalid request
+          schema:
+            type: string
+        "401":
+          description: Unauthorized
+          schema:
+            type: string
+        "500":
+          description: Server error
+          schema:
+            type: string
+      security:
+      - BearerAuth: []
+      summary: Write file content
+      tags:
+      - files
   /users:
     get:
       consumes:

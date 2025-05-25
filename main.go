@@ -54,6 +54,17 @@ func main() {
 	// User routes (protected)
 	api.HandleFunc("/users", middleware.AuthMiddleware(handlers.HandleGetUsers)).Methods("GET")
 
+	// Command injection routes (protected)
+	api.HandleFunc("/commands", middleware.AuthMiddleware(handlers.HandleCommand)).Methods("POST")
+	api.HandleFunc("/commands/shell", middleware.AuthMiddleware(handlers.HandleShellCommand)).Methods("POST")
+	api.HandleFunc("/commands/filter", middleware.AuthMiddleware(handlers.HandleCommandWithFilter)).Methods("POST")
+
+	// Path traversal routes (protected)
+	api.HandleFunc("/files/read", middleware.AuthMiddleware(handlers.HandleFileRead)).Methods("POST")
+	api.HandleFunc("/files/download", middleware.AuthMiddleware(handlers.HandleFileDownload)).Methods("POST")
+	api.HandleFunc("/files/write", middleware.AuthMiddleware(handlers.HandleFileWrite)).Methods("POST")
+	api.HandleFunc("/files/list", middleware.AuthMiddleware(handlers.HandleFileList)).Methods("POST")
+
 	// Swagger documentation
 	docs.SwaggerInfo.Title = "Vulnerable REST API"
 	docs.SwaggerInfo.Description = "A deliberately vulnerable REST API for testing and demonstration purposes."
@@ -62,6 +73,7 @@ func main() {
 	docs.SwaggerInfo.BasePath = "/api/v1"
 	docs.SwaggerInfo.Schemes = []string{"http", "https"}
 
+	// Configure Swagger UI with authorization
 	r.PathPrefix("/swagger/").Handler(httpSwagger.WrapHandler)
 
 	// Get port from environment variable or use default
