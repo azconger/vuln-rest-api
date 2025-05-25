@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"os"
 
+	"github.com/azconger/vuln-rest-api/docs" // Import generated Swagger docs
 	"github.com/azconger/vuln-rest-api/internal/handlers"
 	"github.com/azconger/vuln-rest-api/internal/middleware"
 	"github.com/gorilla/mux"
@@ -54,6 +55,13 @@ func main() {
 	api.HandleFunc("/users", middleware.AuthMiddleware(handlers.HandleGetUsers)).Methods("GET")
 
 	// Swagger documentation
+	docs.SwaggerInfo.Title = "Vulnerable REST API"
+	docs.SwaggerInfo.Description = "A deliberately vulnerable REST API for testing and demonstration purposes."
+	docs.SwaggerInfo.Version = "1.0"
+	docs.SwaggerInfo.Host = "localhost:8080"
+	docs.SwaggerInfo.BasePath = "/api/v1"
+	docs.SwaggerInfo.Schemes = []string{"http", "https"}
+
 	r.PathPrefix("/swagger/").Handler(httpSwagger.WrapHandler)
 
 	// Get port from environment variable or use default

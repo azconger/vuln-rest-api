@@ -3,7 +3,9 @@ package handlers
 import (
 	"database/sql"
 	"encoding/json"
+	"fmt"
 	"net/http"
+	"os"
 
 	_ "github.com/lib/pq"
 )
@@ -49,8 +51,18 @@ func HandleGetUsers(w http.ResponseWriter, r *http.Request) {
 		sqlQuery += " WHERE " + query
 	}
 
-	// Vulnerable: Hardcoded database credentials
-	db, err := sql.Open("postgres", "postgres://postgres:postgres@localhost:5432/vuln_db?sslmode=disable")
+	// Get database connection details from environment variables
+	dbHost := getEnvOrDefault("DB_HOST", "localhost")
+	dbPort := getEnvOrDefault("DB_PORT", "5432")
+	dbUser := getEnvOrDefault("DB_USER", "postgres")
+	dbPassword := getEnvOrDefault("DB_PASSWORD", "postgres")
+	dbName := getEnvOrDefault("DB_NAME", "vuln_db")
+
+	// Vulnerable: Hardcoded database credentials in connection string
+	connStr := fmt.Sprintf("postgres://%s:%s@%s:%s/%s?sslmode=disable",
+		dbUser, dbPassword, dbHost, dbPort, dbName)
+
+	db, err := sql.Open("postgres", connStr)
 	if err != nil {
 		http.Error(w, "Database connection error", http.StatusInternalServerError)
 		return
@@ -80,4 +92,12 @@ func HandleGetUsers(w http.ResponseWriter, r *http.Request) {
 	// Vulnerable: No access control
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(users)
+}
+
+// Helper function to get environment variable with default value
+func getEnvOrDefault(key, defaultValue string) string {
+	if value, exists := os.LookupEnv(key); exists {
+		return value
+	}
+	return defaultValue
 }
