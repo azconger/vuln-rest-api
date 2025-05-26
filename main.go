@@ -6,6 +6,7 @@ import (
 	"os"
 
 	"github.com/azconger/vuln-rest-api/docs" // Import generated Swagger docs
+	"github.com/azconger/vuln-rest-api/internal/database"
 	"github.com/azconger/vuln-rest-api/internal/handlers"
 	"github.com/azconger/vuln-rest-api/internal/middleware"
 	"github.com/gorilla/mux"
@@ -38,6 +39,12 @@ func main() {
 	if err := godotenv.Load(); err != nil {
 		log.Printf("Warning: .env file not found")
 	}
+
+	// Initialize database
+	if err := database.InitDB(); err != nil {
+		log.Fatalf("Failed to initialize database: %v", err)
+	}
+	defer database.CloseDB()
 
 	// Initialize router
 	r := mux.NewRouter()

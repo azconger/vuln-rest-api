@@ -2,45 +2,46 @@
 
 -- Users table (vulnerable to SQL injection)
 CREATE TABLE users (
-    id SERIAL PRIMARY KEY,
-    username VARCHAR(255) NOT NULL UNIQUE,
-    password VARCHAR(255) NOT NULL, -- Intentionally stored in plain text
-    email VARCHAR(255),
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    username TEXT NOT NULL UNIQUE,
+    password TEXT NOT NULL, -- Intentionally stored in plain text
+    email TEXT,
+    role TEXT DEFAULT 'user', -- User role (admin, user, guest)
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
 -- Sessions table (vulnerable to session fixation)
 CREATE TABLE sessions (
-    id SERIAL PRIMARY KEY,
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
     user_id INTEGER REFERENCES users(id),
-    token VARCHAR(255) NOT NULL,
+    token TEXT NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     expires_at TIMESTAMP NOT NULL
 );
 
 -- Products table (vulnerable to SQL injection)
 CREATE TABLE products (
-    id SERIAL PRIMARY KEY,
-    name VARCHAR(255) NOT NULL,
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    name TEXT NOT NULL,
     description TEXT,
-    price DECIMAL(10,2),
+    price REAL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
 -- Orders table (vulnerable to SQL injection)
 CREATE TABLE orders (
-    id SERIAL PRIMARY KEY,
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
     user_id INTEGER REFERENCES users(id),
     product_id INTEGER REFERENCES products(id),
     quantity INTEGER,
-    total_price DECIMAL(10,2),
+    total_price REAL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
 -- Comments table (vulnerable to XSS)
 CREATE TABLE comments (
-    id SERIAL PRIMARY KEY,
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
     user_id INTEGER REFERENCES users(id),
     content TEXT NOT NULL, -- Intentionally vulnerable to XSS
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
@@ -48,16 +49,16 @@ CREATE TABLE comments (
 
 -- Files table (vulnerable to path traversal)
 CREATE TABLE files (
-    id SERIAL PRIMARY KEY,
-    name VARCHAR(255) NOT NULL,
-    path VARCHAR(255) NOT NULL, -- Intentionally vulnerable to path traversal
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    name TEXT NOT NULL,
+    path TEXT NOT NULL, -- Intentionally vulnerable to path traversal
     size INTEGER,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
 -- Commands table (vulnerable to command injection)
 CREATE TABLE commands (
-    id SERIAL PRIMARY KEY,
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
     command TEXT NOT NULL, -- Intentionally vulnerable to command injection
     output TEXT,
     executed_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
@@ -65,14 +66,14 @@ CREATE TABLE commands (
 
 -- XML data table (vulnerable to XXE)
 CREATE TABLE xml_data (
-    id SERIAL PRIMARY KEY,
-    content XML NOT NULL, -- Intentionally vulnerable to XXE
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    content TEXT NOT NULL, -- Intentionally vulnerable to XXE
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
 -- Insert default user (intentionally weak credentials)
-INSERT INTO users (username, password, email) 
-VALUES ('user', 'password', 'user@example.com');
+INSERT INTO users (username, password, email, role) 
+VALUES ('user', 'password', 'user@example.com', 'user');
 
 -- Insert sample products
 INSERT INTO products (name, description, price) VALUES

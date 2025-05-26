@@ -1,0 +1,31 @@
+app:
+  applicationId: 023d2796-f7d5-4672-b2d4-33b2593f2dd5
+  env: Development
+  host: http://localhost:8080
+  openApiConf:
+    path: /swagger/doc.json
+  authentication:
+    testPath:
+      path: /api/v1/users
+      success: ".*200.*"
+    loggedInIndicator: "HTTP.*2[0-9][0-9]\\s*O[kK](\\s*)|HTTP.*3[0-9][0-9].*"
+    loggedOutIndicator: "HTTP.*4[0-9][0-9](\\s*)Unauthorized.*"
+    usernamePassword:
+      type: JSON
+      loginPath: /api/v1/auth/login
+      usernameField: username
+      passwordField: password
+      scanUsername: admin
+      scanPassword: admin123
+    tokenExtraction:
+      type: TOKEN_PATH
+      value: access_token
+    tokenAuthorization:
+      type: HEADER
+      isJWT: true
+      value: Authorization
+      tokenType: Bearer
+hawk:
+  spider:
+    base: false
+    ajax: false
